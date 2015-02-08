@@ -22,56 +22,42 @@ func main() {
 				// 	fmt.Println("End")
 				// }
 				client.Connect()
-				//client.Send([]byte("Hello, I am message from client"))
-				//client.Send([]byte("Bbbbbbbbbb"))
 				
-				//-----------------------------------//
 				// Open file
 				var fileName string = "TheLeanStartup.pdf"
 
-				file, err := os.Open(strings.TrimSpace(fileName)) // For read access.
+				file, err := os.Open(strings.TrimSpace(fileName)) 
 				
 				if err != nil {
-    				log.Fatal(err)
+    					log.Fatal(err)
 				}
-
 				
 				fmt.Printf("Sending %s file\n", fileName)
 
-				   // make a buffer to keep chunks that are read
-    			buf := make([]byte, 5000)
-    			i := 0
-    			for {
-    				
-        			// read a chunk
-        			n, err := file.Read(buf)
-        			if err != nil && err != io.EOF {
-            			panic(err)
+				// make a buffer to keep chunks that are read
+    				buf := make([]byte, 5000)
+    				i := 0
+    				for {
+        				// read a chunk
+        				n, err := file.Read(buf)
+        				if err != nil && err != io.EOF {
+            					panic(err)
+        				}
+        				if n == 0 {
+           					break
+       					}
+
+       					//fmt.Println(buf[:n])
+       					client.Send([]byte(buf[:n])) 
+       					i++
+       					fmt.Println(i)
         			}
-        			if n == 0 {
-           				break
-       				}
-
-       				//fmt.Println(buf[:])
-       				client.Send([]byte(buf[:n])) // <------------------ without n??????
-       				i++
-       				fmt.Println(i)
-        		}
-        		fmt.Println("End")
-
-				//-----------------------------------//
-
-				//fmt.Println(file)
-
-				//fmt.Println(n, "bytes sent")
-				
-				//================================//
+        			fmt.Println("End of transfer")
 
 				var input string
 				for {
-
-						fmt.Scanln(&input)
-						client.Send([]byte(input))
+					fmt.Scanln(&input)
+					client.Send([]byte(input))
 				}
 			}
 		case "server":
@@ -82,22 +68,16 @@ func main() {
         				panic(err)
     				}
 				server.DataReceived = func(data []byte, socket *FNTP.Socket) {
-					// fmt.Println(string(data))
-					//socket.Send([]byte("Hello, I am message from server"))
+				
+				//socket.Send([]byte("Hello, I am message from server"))
 
-					
-    				// open output file
-    				//fileOutput, err := os.OpenFile("output.txt", os.O_APPEND, 0777)
-    				
-					// write a chunk
-					
+    				// write a chunk
         			if _, err := fileOutput.Write(data); err != nil {
-            			//panic(err)
-            			log.Fatal(err)
+            				//panic(err)
+            				log.Fatal(err)
         			}
         			//socket.Send([]byte("The file recieved\n"))
-					
-					//fileOutput.Close()
+				//fileOutput.Close()
 				}
 				server.ErrorHandling = func(err error) {
 					fmt.Println("vvvvvvvv", err.Error())
